@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -23,10 +23,17 @@
         "monochromeImage": "./assets/android-icon-monochrome.png",
         "backgroundColor": "#111827"
       },
-      "package": "com.truco.anotador"
+      "package": "com.truco.anotador",
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1dc84bee-4297-4b89-9b87-4c9bf35d251d"
+      }
+    },
+    "owner": "tavopeppers"
   }
 }

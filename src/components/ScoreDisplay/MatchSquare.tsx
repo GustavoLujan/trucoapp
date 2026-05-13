@@ -24,34 +24,39 @@ export function getSlotState(sectionScore: number, slotIndex: number): SquareSta
 export function MatchSquare({ state: squareState, gold = false, partialCount = 0 }: MatchSquareProps) {
   const isComplete = squareState === 'complete';
   const isDimmed = squareState === 'dimmed';
+  const isActive = squareState === 'active';
 
   const stick = isComplete
     ? (gold ? '#A08030' : '#A07020')
     : (gold ? '#C8A951' : '#C8962E');
   const head = gold ? '#8B4500' : '#CC1800';
 
+  // Bars revealed one at a time: top → left → bottom → right → diagonal
+  const showTop    = isComplete || isDimmed || (isActive && partialCount >= 1);
+  const showLeft   = isComplete || isDimmed || (isActive && partialCount >= 2);
+  const showBottom = isComplete || isDimmed || (isActive && partialCount >= 3);
+  const showRight  = isComplete || isDimmed || (isActive && partialCount >= 4);
+
+  const showHeadTL = showTop || showLeft;
+  const showHeadTR = showTop || showRight;
+  const showHeadBL = showBottom || showLeft;
+  const showHeadBR = showBottom || showRight;
+
   return (
     <View style={[styles.wrap, isDimmed && styles.dimmed]} testID="match-square">
-      <View style={[styles.topBar,    { backgroundColor: stick }]} />
-      <View style={[styles.bottomBar, { backgroundColor: stick }]} />
-      <View style={[styles.leftBar,   { backgroundColor: stick }]} />
-      <View style={[styles.rightBar,  { backgroundColor: stick }]} />
-      <View style={[styles.head, styles.headTL, { backgroundColor: head }]} />
-      <View style={[styles.head, styles.headTR, { backgroundColor: head }]} />
-      <View style={[styles.head, styles.headBL, { backgroundColor: head }]} />
-      <View style={[styles.head, styles.headBR, { backgroundColor: head }]} />
+      {showTop    && <View style={[styles.topBar,    { backgroundColor: stick }]} />}
+      {showBottom && <View style={[styles.bottomBar, { backgroundColor: stick }]} />}
+      {showLeft   && <View style={[styles.leftBar,   { backgroundColor: stick }]} />}
+      {showRight  && <View style={[styles.rightBar,  { backgroundColor: stick }]} />}
+      {showHeadTL && <View style={[styles.head, styles.headTL, { backgroundColor: head }]} />}
+      {showHeadTR && <View style={[styles.head, styles.headTR, { backgroundColor: head }]} />}
+      {showHeadBL && <View style={[styles.head, styles.headBL, { backgroundColor: head }]} />}
+      {showHeadBR && <View style={[styles.head, styles.headBR, { backgroundColor: head }]} />}
       {isComplete && (
         <>
           <View style={[styles.diagonal, { backgroundColor: stick }]} />
           <View style={[styles.head, styles.headTR, { backgroundColor: head }]} />
         </>
-      )}
-      {squareState === 'active' && partialCount > 0 && (
-        <View style={styles.ticksContainer}>
-          {Array.from({ length: partialCount }, (_, i) => (
-            <View key={i} style={[styles.tick, { backgroundColor: stick }]} />
-          ))}
-        </View>
       )}
     </View>
   );
@@ -115,20 +120,5 @@ const styles = StyleSheet.create({
     top: (SQ - STICK) / 2,
     left: (SQ - DIAG_LEN) / 2,
     transform: [{ rotate: '-45deg' }],
-  },
-  ticksContainer: {
-    position: 'absolute',
-    left: STICK + 4,
-    right: STICK + 4,
-    top: STICK + 4,
-    bottom: STICK + 4,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-  },
-  tick: {
-    width: 4,
-    height: 22,
-    borderRadius: 2,
   },
 });

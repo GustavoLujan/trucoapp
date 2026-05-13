@@ -3,8 +3,8 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { COLORS, TEAM_LABELS } from '../../constants/game';
 import type { WinnerModalProps } from '../../types/game';
 
-export function WinnerModal({ visible, winner, nosotrosScore, ellosScore, onNewGame }: WinnerModalProps) {
-  const winnerLabel = winner ? TEAM_LABELS[winner] : '';
+export function WinnerModal({ visible, winner, nosotrosScore, ellosScore, onNewGame, winnerLabel: winnerLabelProp }: WinnerModalProps) {
+  const winnerLabel = winnerLabelProp ?? (winner ? TEAM_LABELS[winner] : '');
 
   return (
     <Modal

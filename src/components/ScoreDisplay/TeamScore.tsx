@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { PointButton } from '../ScoreControls/PointButton';
 import { MatchSquare, getSlotState } from './MatchSquare';
 
@@ -17,44 +17,41 @@ export interface TeamScoreProps {
   onAdd: () => void;
   onSubtract: () => void;
   disabled: boolean;
+  onEditName?: () => void;
 }
 
 export function TeamScore({
-  id, label, score, winningScore, isWinner, onAdd, onSubtract, disabled,
+  id, label, score, winningScore, isWinner, onAdd, onSubtract, disabled, onEditName,
 }: TeamScoreProps) {
-  const isLongGame = winningScore > 15;
-  const malasScore  = Math.min(score, 15);
-  const buenasScore = Math.max(score - 15, 0);
+  const inBuenas = winningScore > 15 && score > 15;
+  const activeSectionScore = inBuenas ? score - 15 : score;
+  const isGold = inBuenas;
+  const sectionLabel = inBuenas ? 'BUENAS' : 'MALAS';
   const headerColor = TEAM_COLORS[id] ?? '#444';
 
   return (
     <View style={[styles.container, isWinner && styles.winnerBorder]} testID={`team-score-${id}`}>
 
-      <View style={[styles.header, { backgroundColor: headerColor }]}>
+      <Pressable
+        style={[styles.header, { backgroundColor: headerColor }]}
+        onPress={onEditName}
+        disabled={!onEditName}
+      >
         <Text style={styles.teamName}>{label.toUpperCase()}</Text>
-      </View>
+        {onEditName && <Text style={styles.editHint}>✎</Text>}
+      </Pressable>
 
       <View style={styles.sections}>
-
-        <Text style={styles.labelMalas}>MALAS</Text>
+        {inBuenas && <Text style={styles.malasBadge}>MALAS ✓</Text>}
+        <Text style={[styles.sectionLabel, isGold && styles.sectionLabelGold]}>{sectionLabel}</Text>
         <View style={styles.squaresCol}>
-          {[0, 1, 2].map(i => (
-            <MatchSquare key={i} state={getSlotState(malasScore, i)} gold={false} />
-          ))}
+          {[0, 1, 2].map(i => {
+            const slotState = getSlotState(activeSectionScore, i);
+            const slotStart = i * 5;
+            const partial = slotState === 'active' ? activeSectionScore - slotStart : 0;
+            return <MatchSquare key={i} state={slotState} partialCount={partial} gold={isGold} />;
+          })}
         </View>
-
-        {isLongGame && (
-          <>
-            <View style={styles.divider} />
-            <Text style={styles.labelBuenas}>BUENAS</Text>
-            <View style={styles.squaresCol}>
-              {[0, 1, 2].map(i => (
-                <MatchSquare key={i} state={getSlotState(buenasScore, i)} gold />
-              ))}
-            </View>
-          </>
-        )}
-
       </View>
 
       <Text style={[styles.score, { color: headerColor }]}>{score}</Text>
@@ -83,13 +80,21 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingVertical: 10,
+    paddingHorizontal: 8,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
   },
   teamName: {
     color: '#fff',
     fontSize: 13,
     fontWeight: '900',
     letterSpacing: 3,
+  },
+  editHint: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 12,
   },
   sections: {
     backgroundColor: '#111a0f',
@@ -102,23 +107,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 5,
   },
-  divider: {
-    width: '80%',
-    height: 1,
-    backgroundColor: '#1e2e18',
-    marginVertical: 4,
+  malasBadge: {
+    color: '#6a9a60',
+    fontSize: 7,
+    fontWeight: '800',
+    letterSpacing: 2,
   },
-  labelMalas: {
+  sectionLabel: {
     color: '#6a9a60',
     fontSize: 8,
     fontWeight: '800',
     letterSpacing: 3,
   },
-  labelBuenas: {
+  sectionLabelGold: {
     color: '#a09030',
-    fontSize: 8,
-    fontWeight: '800',
-    letterSpacing: 3,
   },
   score: {
     fontSize: 40,

@@ -11,10 +11,11 @@ interface ScoreDisplayProps {
   status: 'playing' | 'won';
   onAdd: (team: TeamId, points: 1) => void;
   onSubtract: (team: TeamId) => void;
+  onEditName?: (team: TeamId) => void;
 }
 
 export function ScoreDisplay({
-  nosotros, ellos, winningScore, winner, status, onAdd, onSubtract,
+  nosotros, ellos, winningScore, winner, status, onAdd, onSubtract, onEditName,
 }: ScoreDisplayProps) {
   const disabled = status === 'won';
 
@@ -27,6 +28,7 @@ export function ScoreDisplay({
         onAdd={() => onAdd('nosotros', 1)}
         onSubtract={() => onSubtract('nosotros')}
         disabled={disabled}
+        onEditName={onEditName ? () => onEditName('nosotros') : undefined}
       />
       <TeamScore
         {...ellos}
@@ -35,6 +37,7 @@ export function ScoreDisplay({
         onAdd={() => onAdd('ellos', 1)}
         onSubtract={() => onSubtract('ellos')}
         disabled={disabled}
+        onEditName={onEditName ? () => onEditName('ellos') : undefined}
       />
     </View>
   );

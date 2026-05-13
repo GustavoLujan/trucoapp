@@ -57,6 +57,7 @@ export interface WinnerModalProps {
   nosotrosScore: number;
   ellosScore: number;
   onNewGame: () => void;
+  winnerLabel?: string;
 }
 
 export interface GameModeSelectorProps {

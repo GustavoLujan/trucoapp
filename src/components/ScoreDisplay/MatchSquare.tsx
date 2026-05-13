@@ -12,6 +12,7 @@ export type SquareState = 'complete' | 'active' | 'dimmed';
 export interface MatchSquareProps {
   state: SquareState;
   gold?: boolean;
+  partialCount?: number;
 }
 
 export function getSlotState(sectionScore: number, slotIndex: number): SquareState {
@@ -20,7 +21,7 @@ export function getSlotState(sectionScore: number, slotIndex: number): SquareSta
   return 'dimmed';
 }
 
-export function MatchSquare({ state: squareState, gold = false }: MatchSquareProps) {
+export function MatchSquare({ state: squareState, gold = false, partialCount = 0 }: MatchSquareProps) {
   const isComplete = squareState === 'complete';
   const isDimmed = squareState === 'dimmed';
 
@@ -44,6 +45,13 @@ export function MatchSquare({ state: squareState, gold = false }: MatchSquarePro
           <View style={[styles.diagonal, { backgroundColor: stick }]} />
           <View style={[styles.head, styles.headTR, { backgroundColor: head }]} />
         </>
+      )}
+      {squareState === 'active' && partialCount > 0 && (
+        <View style={styles.ticksContainer}>
+          {Array.from({ length: partialCount }, (_, i) => (
+            <View key={i} style={[styles.tick, { backgroundColor: stick }]} />
+          ))}
+        </View>
       )}
     </View>
   );
@@ -107,5 +115,20 @@ const styles = StyleSheet.create({
     top: (SQ - STICK) / 2,
     left: (SQ - DIAG_LEN) / 2,
     transform: [{ rotate: '-45deg' }],
+  },
+  ticksContainer: {
+    position: 'absolute',
+    left: STICK + 4,
+    right: STICK + 4,
+    top: STICK + 4,
+    bottom: STICK + 4,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+  },
+  tick: {
+    width: 4,
+    height: 22,
+    borderRadius: 2,
   },
 });

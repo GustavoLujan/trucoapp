@@ -1,38 +1,47 @@
 import { render } from '@testing-library/react-native';
 import React from 'react';
-import { TantoMarks } from '../../src/components/ScoreDisplay/TantoMarks';
+import { MatchSquare, getSlotState } from '../../src/components/ScoreDisplay/MatchSquare';
 
-describe('TantoMarks', () => {
-  it('renders the correct number of groups for 15-point game', () => {
-    const { getAllByTestId } = render(<TantoMarks score={0} winningScore={15} />);
-    expect(getAllByTestId('tally-group').length).toBe(3);
+describe('getSlotState', () => {
+  it('returns dimmed for score 0 on slot 0', () => {
+    expect(getSlotState(0, 0)).toBe('dimmed');
   });
 
-  it('renders 6 groups for 30-point game', () => {
-    const { getAllByTestId } = render(<TantoMarks score={0} winningScore={30} />);
-    expect(getAllByTestId('tally-group').length).toBe(6);
+  it('returns active when slot is partially filled', () => {
+    expect(getSlotState(3, 0)).toBe('active');
+    expect(getSlotState(7, 1)).toBe('active');
   });
 
-  it('shows diagonal only for complete groups (score 5)', () => {
-    const { getAllByTestId, queryAllByTestId } = render(
-      <TantoMarks score={5} winningScore={15} />
-    );
-    expect(getAllByTestId('tally-diagonal').length).toBe(1);
-    expect(queryAllByTestId('tally-diagonal').length).toBe(1);
+  it('returns complete when slot is fully filled', () => {
+    expect(getSlotState(5,  0)).toBe('complete');
+    expect(getSlotState(10, 1)).toBe('complete');
+    expect(getSlotState(15, 2)).toBe('complete');
   });
 
-  it('shows no diagonals for score 0', () => {
-    const { queryAllByTestId } = render(<TantoMarks score={0} winningScore={15} />);
-    expect(queryAllByTestId('tally-diagonal').length).toBe(0);
+  it('returns dimmed for slots not yet reached', () => {
+    expect(getSlotState(5, 1)).toBe('dimmed');
+    expect(getSlotState(5, 2)).toBe('dimmed');
+  });
+});
+
+describe('MatchSquare', () => {
+  it('renders without crashing (complete)', () => {
+    const { getByTestId } = render(<MatchSquare state="complete" />);
+    expect(getByTestId('match-square')).toBeTruthy();
   });
 
-  it('shows 2 diagonals for score 10', () => {
-    const { getAllByTestId } = render(<TantoMarks score={10} winningScore={15} />);
-    expect(getAllByTestId('tally-diagonal').length).toBe(2);
+  it('renders without crashing (active)', () => {
+    const { getByTestId } = render(<MatchSquare state="active" />);
+    expect(getByTestId('match-square')).toBeTruthy();
   });
 
-  it('renders without crashing for score 15', () => {
-    const { getByTestId } = render(<TantoMarks score={15} winningScore={15} />);
-    expect(getByTestId('tanto-marks')).toBeTruthy();
+  it('renders without crashing (dimmed)', () => {
+    const { getByTestId } = render(<MatchSquare state="dimmed" />);
+    expect(getByTestId('match-square')).toBeTruthy();
+  });
+
+  it('renders gold variant without crashing', () => {
+    const { getByTestId } = render(<MatchSquare state="complete" gold />);
+    expect(getByTestId('match-square')).toBeTruthy();
   });
 });

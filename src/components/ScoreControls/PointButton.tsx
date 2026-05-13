@@ -1,49 +1,86 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { COLORS } from '../../constants/game';
-import type { PointButtonProps } from '../../types/game';
 
-export function PointButton({ label, onPress, disabled = false, variant = 'primary' }: PointButtonProps) {
-  const bgColor = variant === 'danger' ? COLORS.danger : COLORS.accent;
+export interface PointButtonProps {
+  icon: 'plus' | 'minus';
+  onPress: () => void;
+  disabled?: boolean;
+}
 
+function PlusIcon() {
+  return (
+    <View style={iconStyles.wrap}>
+      <View style={iconStyles.hBar} />
+      <View style={iconStyles.vBar} />
+    </View>
+  );
+}
+
+function MinusIcon() {
+  return <View style={iconStyles.hBar} />;
+}
+
+export function PointButton({ icon, onPress, disabled = false }: PointButtonProps) {
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: bgColor },
         pressed && styles.pressed,
         disabled && styles.disabled,
       ]}
-      testID={`point-button-${label}`}
+      testID={`point-button-${icon}`}
       accessibilityRole="button"
-      accessibilityLabel={label}
     >
-      <Text style={styles.label}>{label}</Text>
+      {icon === 'plus' ? <PlusIcon /> : <MinusIcon />}
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
-  button: {
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 10,
+const iconStyles = StyleSheet.create({
+  wrap: {
+    width: 22,
+    height: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 64,
+  },
+  hBar: {
+    position: 'absolute',
+    width: 22,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: '#111',
+  },
+  vBar: {
+    position: 'absolute',
+    width: 3,
+    height: 22,
+    borderRadius: 1.5,
+    backgroundColor: '#111',
+  },
+});
+
+const styles = StyleSheet.create({
+  button: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 4,
   },
   pressed: {
     opacity: 0.75,
-    transform: [{ scale: 0.96 }],
+    transform: [{ scale: 0.95 }],
   },
   disabled: {
     opacity: 0.35,
-  },
-  label: {
-    color: COLORS.bg,
-    fontSize: 18,
-    fontWeight: '800',
   },
 });

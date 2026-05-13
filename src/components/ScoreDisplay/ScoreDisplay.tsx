@@ -1,26 +1,40 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import type { GameState } from '../../types/game';
+import type { TeamId } from '../../types/game';
 import { TeamScore } from './TeamScore';
 
 interface ScoreDisplayProps {
-  state: GameState;
+  nosotros: { id: string; label: string; score: number };
+  ellos:    { id: string; label: string; score: number };
   winningScore: number;
+  winner: TeamId | null;
+  status: 'playing' | 'won';
+  onAdd: (team: TeamId, points: 1) => void;
+  onSubtract: (team: TeamId) => void;
 }
 
-export function ScoreDisplay({ state, winningScore }: ScoreDisplayProps) {
+export function ScoreDisplay({
+  nosotros, ellos, winningScore, winner, status, onAdd, onSubtract,
+}: ScoreDisplayProps) {
+  const disabled = status === 'won';
+
   return (
     <View style={styles.container} testID="score-display">
       <TeamScore
-        team={state.nosotros}
+        {...nosotros}
         winningScore={winningScore}
-        isWinner={state.winner === 'nosotros'}
+        isWinner={winner === 'nosotros'}
+        onAdd={() => onAdd('nosotros', 1)}
+        onSubtract={() => onSubtract('nosotros')}
+        disabled={disabled}
       />
-      <View style={styles.divider} />
       <TeamScore
-        team={state.ellos}
+        {...ellos}
         winningScore={winningScore}
-        isWinner={state.winner === 'ellos'}
+        isWinner={winner === 'ellos'}
+        onAdd={() => onAdd('ellos', 1)}
+        onSubtract={() => onSubtract('ellos')}
+        disabled={disabled}
       />
     </View>
   );
@@ -29,11 +43,7 @@ export function ScoreDisplay({ state, winningScore }: ScoreDisplayProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    gap: 8,
-    paddingHorizontal: 16,
-  },
-  divider: {
-    width: 2,
-    backgroundColor: 'transparent',
+    gap: 10,
+    paddingHorizontal: 12,
   },
 });

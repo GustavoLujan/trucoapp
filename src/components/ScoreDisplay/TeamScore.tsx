@@ -1,17 +1,69 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '../../constants/game';
-import type { TeamScoreProps } from '../../types/game';
-import { TantoMarks } from './TantoMarks';
+import { PointButton } from '../ScoreControls/PointButton';
+import { MatchSquare, getSlotState } from './MatchSquare';
 
-export function TeamScore({ team, winningScore, isWinner }: TeamScoreProps) {
+const TEAM_COLORS: Record<string, string> = {
+  nosotros: '#1a4a99',
+  ellos:    '#991a1a',
+};
+
+export interface TeamScoreProps {
+  id: string;
+  label: string;
+  score: number;
+  winningScore: number;
+  isWinner: boolean;
+  onAdd: () => void;
+  onSubtract: () => void;
+  disabled: boolean;
+}
+
+export function TeamScore({
+  id, label, score, winningScore, isWinner, onAdd, onSubtract, disabled,
+}: TeamScoreProps) {
+  const isLongGame = winningScore > 15;
+  const malasScore  = Math.min(score, 15);
+  const buenasScore = Math.max(score - 15, 0);
+  const headerColor = TEAM_COLORS[id] ?? '#444';
+
   return (
-    <View style={[styles.container, isWinner && styles.winnerHighlight]} testID={`team-score-${team.id}`}>
-      <Text style={[styles.label, isWinner && styles.winnerLabel]}>{team.label}</Text>
-      <Text style={[styles.score, isWinner && styles.winnerScore]}>{team.score}</Text>
-      <View style={styles.marksContainer}>
-        <TantoMarks score={team.score} winningScore={winningScore} />
+    <View style={[styles.container, isWinner && styles.winnerBorder]} testID={`team-score-${id}`}>
+
+      <View style={[styles.header, { backgroundColor: headerColor }]}>
+        <Text style={styles.teamName}>{label.toUpperCase()}</Text>
       </View>
+
+      <View style={styles.sections}>
+
+        <Text style={styles.labelMalas}>MALAS</Text>
+        <View style={styles.squaresCol}>
+          {[0, 1, 2].map(i => (
+            <MatchSquare key={i} state={getSlotState(malasScore, i)} gold={false} />
+          ))}
+        </View>
+
+        {isLongGame && (
+          <>
+            <View style={styles.divider} />
+            <Text style={styles.labelBuenas}>BUENAS</Text>
+            <View style={styles.squaresCol}>
+              {[0, 1, 2].map(i => (
+                <MatchSquare key={i} state={getSlotState(buenasScore, i)} gold />
+              ))}
+            </View>
+          </>
+        )}
+
+      </View>
+
+      <Text style={[styles.score, { color: headerColor }]}>{score}</Text>
+
+      <View style={styles.buttons}>
+        <PointButton icon="minus" onPress={onSubtract} disabled={disabled} />
+        <PointButton icon="plus"  onPress={onAdd}      disabled={disabled} />
+      </View>
+
     </View>
   );
 }
@@ -19,38 +71,68 @@ export function TeamScore({ team, winningScore, isWinner }: TeamScoreProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.green,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    minHeight: 200,
+    backgroundColor: '#0e0e0e',
+    borderRadius: 14,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#222',
   },
-  winnerHighlight: {
-    backgroundColor: COLORS.greenLight,
+  winnerBorder: {
+    borderColor: '#C8A951',
     borderWidth: 2,
-    borderColor: COLORS.accent,
   },
-  label: {
-    color: COLORS.chalk,
-    fontSize: 20,
-    fontWeight: '700',
-    letterSpacing: 1,
-    marginBottom: 4,
+  header: {
+    paddingVertical: 10,
+    alignItems: 'center',
   },
-  winnerLabel: {
-    color: COLORS.accent,
+  teamName: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 3,
+  },
+  sections: {
+    backgroundColor: '#111a0f',
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+    gap: 6,
+  },
+  squaresCol: {
+    alignItems: 'center',
+    gap: 5,
+  },
+  divider: {
+    width: '80%',
+    height: 1,
+    backgroundColor: '#1e2e18',
+    marginVertical: 4,
+  },
+  labelMalas: {
+    color: '#6a9a60',
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 3,
+  },
+  labelBuenas: {
+    color: '#a09030',
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 3,
   },
   score: {
-    color: COLORS.chalk,
-    fontSize: 48,
+    fontSize: 40,
     fontWeight: '900',
-    lineHeight: 56,
+    textAlign: 'center',
+    paddingVertical: 6,
+    backgroundColor: '#0e0e0e',
   },
-  winnerScore: {
-    color: COLORS.accent,
-  },
-  marksContainer: {
-    marginTop: 8,
-    width: '100%',
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 16,
+    paddingBottom: 14,
+    paddingTop: 2,
+    backgroundColor: '#0e0e0e',
   },
 });

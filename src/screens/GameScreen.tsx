@@ -3,7 +3,6 @@ import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 import { GameModeSelector } from '../components/GameModeSelector';
 import { Header } from '../components/Header';
-import { ScoreControls } from '../components/ScoreControls';
 import { ScoreDisplay } from '../components/ScoreDisplay';
 import { WinnerModal } from '../components/WinnerModal';
 import { COLORS } from '../constants/game';
@@ -21,14 +20,15 @@ export function GameScreen() {
         <View style={styles.modeRow}>
           <GameModeSelector mode={state.mode} onChange={setMode} disabled={!canChangeMode} />
         </View>
-        <ScoreDisplay state={state} winningScore={winningScore} />
-        <View style={styles.controlsRow}>
-          <ScoreControls
-            onAdd={addPoints}
-            onSubtract={subtractOne}
-            disabled={state.status === 'won'}
-          />
-        </View>
+        <ScoreDisplay
+          nosotros={state.nosotros}
+          ellos={state.ellos}
+          winningScore={winningScore}
+          winner={state.winner}
+          status={state.status}
+          onAdd={addPoints}
+          onSubtract={subtractOne}
+        />
       </ScrollView>
       <WinnerModal
         visible={state.status === 'won'}
@@ -47,14 +47,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.bg,
   },
   content: {
-    paddingVertical: 16,
-    gap: 20,
+    paddingVertical: 14,
+    gap: 16,
   },
   modeRow: {
     paddingHorizontal: 16,
     alignItems: 'center',
-  },
-  controlsRow: {
-    paddingBottom: 24,
   },
 });
